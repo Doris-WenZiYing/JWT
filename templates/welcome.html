@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>歡迎頁面</title>
+  <style>
+    body { background:#2c2c2c; color:#f1f1f1; margin:0; font-family:Arial,sans-serif; padding:40px; }
+    .section { margin-bottom:30px; }
+    pre {
+      background:#1e1e1e; padding:10px; border-radius:4px;
+      overflow-x:auto; color:#0f0;
+    }
+    button { padding:10px 20px; font-size:16px; cursor:pointer; }
+    #countdown {
+      font-size:18px;
+      margin-bottom:20px;
+      color:#ff6666;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h1>歡迎, {{ username }}！</h1>
+    <p>您已成功登入！</p>
+    <div id="countdown">60 秒後自動登出</div>
+    <button onclick="logout()">手動登出</button>
+  </div>
+
+  <div class="section">
+    <h2>Raw JWT Token</h2>
+    <pre>{{ jwt_raw }}</pre>
+  </div>
+
+  <div class="section">
+    <h2>JWT Header</h2>
+    <pre>{{ jwt_header | tojson(indent=2) }}</pre>
+  </div>
+
+  <div class="section">
+    <h2>JWT Payload</h2>
+    <pre>{{ jwt_payload | tojson(indent=2) }}</pre>
+  </div>
+
+  <script>
+    // 自動登出函式
+    async function logout() {
+      await fetch("/logout", {
+        method: "POST",
+        credentials: "include"
+      });
+      window.location.href = "/";
+    }
+
+    // 60 秒倒數
+    (function startCountdown() {
+      let seconds = 60;
+      const el = document.getElementById('countdown');
+      const iv = setInterval(() => {
+        seconds--;
+        if (seconds <= 0) {
+          clearInterval(iv);
+          logout();
+        } else {
+          el.textContent = `${seconds} 秒後自動登出`;
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>
